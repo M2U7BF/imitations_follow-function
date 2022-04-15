@@ -1,3 +1,9 @@
+#https://www.sejuku.net/blog/23149
+import logging
+logger = logging.getLogger('development')
+sh = logging.StreamHandler()
+logger.addHandler(sh)
+
 from django.views.generic import DetailView, TemplateView, CreateView, View
 from .models import *
 from django.shortcuts import render
@@ -19,7 +25,7 @@ class MyPageView(DetailView):
 
     def get_context_data(self, **kwargs):
         ctxt = super().get_context_data()
-        ctxt["object_list"] = ArticleModel.objects.all()
+        ctxt['object_list'] = ArticleModel.objects.all()
         ownerPk = self.kwargs['userid']
         ctxt['page_owner'] = User.objects.get(pk=ownerPk)
         return ctxt
@@ -133,23 +139,33 @@ class MyLoginView(LoginView):
 class MyLogoutView(LoginRequiredMixin, LogoutView):
     template_name = "logout.html"
 
-
 class FollowView(View):
     #実行されるときの処理
-    # def get(self, request, *args, **kwargs):
-    # obj = User.objects.get(自分)
     def get(self, request, *args, **kwargs):
-        path = request.path
-        return HttpResponse(path)
+
+        my_userid = self.request.GET.get("follow")
+        other_userid = self.kwargs['pk']
+
+        #テスト部分
+        if self.request.GET.get('follow', None):
+            logger.debug("request.GET.get() = " + self.request.GET.get('follow', None))
+
+        me = User.objects.get(pk=my_userid)
+        other = User.objects.get(pk=other_userid)
     
-    # if 対象.follow_state == False :
-    #     自分.following.add(対象)
-    #     対象.follow_state = True
-    #     obj.save()
-    # elif 対象.follow_state == True :
-    #     自分.following.remove(対象)
-    #     対象.follow_state = False
-    #     obj.save()
+        if other.follow_state == False :
+            me.following.add(other)
+            other.follow_state = True
+        elif other.follow_state == True :
+            me.following.remove(other)
+            other.follow_state = False
+
+        me.save()
+        other.save()
+
+        followed_num = User.objects.get(pk=other_userid).followed_by.all().count()
+
+        return JsonResponse(followed_num) # いいねの数をJavaScriptに渡す
 
     # return JsonResponse({"follow_num,":obj.follow_num})
     
@@ -158,10 +174,6 @@ class FollowView(View):
         # A.following.add(B)
     # all().count()で数え直す
     # 結果をレスポンス
-
-    # .get()とかはクエリ文?、django shell文?
-    # button からDB操作はformがよいか
-    # if~ True だと押した時 ~をFalseにする
 
 
     def get_context_data(self, **kwargs):
@@ -192,7 +204,6 @@ class FollowView(View):
                 % {"verbose_name": queryset.model._meta.verbose_name}
             )
         return objs
-
 
 def UnfollowView(request,pk):
     try:

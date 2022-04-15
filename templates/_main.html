@@ -6,12 +6,7 @@
         <!-- このページの作者をフォロー、フォロー解除できる -->
         <p>
             <div>
-                <form action="" method="get">
-                    <input type="submit" value="フォロー"><p>：{{ following_num }}</p>
-                </form>
-            </div>
-            <div>
-                <a href="{% url '' user.id %}" onclick="">フォロワー<span>{{ followed_num }}</span></a>
+                {% include 'followed.html' %}
             </div>
         </p>
     </div>
