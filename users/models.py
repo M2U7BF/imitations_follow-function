@@ -105,6 +105,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     # objects.get()など、views.pyで取得するための設定
     objects = UserManager()
 
+    # フォロー機能
+    # 外部制約
+    following = models.ManyToManyField("self",related_name="followed_by",symmetrical=False,blank=True)
+    follow_state = models.BooleanField(default=False)
+
+
     # 原文
     # ターミナルでユーザー作成（manage.py createsuperuser）するときに表示。入力必須。
     EMAIL_FIELD = "email"

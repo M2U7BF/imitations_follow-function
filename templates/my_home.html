@@ -3,6 +3,7 @@
 {% block main %}
     <div>
         <p>このページの作成者名: {{ page_owner.email }}</p>
+        
     </div>
     {% for i in object_list %}
         {% if page_owner.id == i.posted_by.id %}
