@@ -1,0 +1,17 @@
+Internal Server Error: /blog/follow/30d0cb0d-69ec-4811-b2bf-dd1921834cbe
+Traceback (most recent call last):
+  File "/Users/zuyaka/ドキュメント/Programming/Django_Imitation/imitation08_custom_user/.venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/zuyaka/ドキュメント/Programming/Django_Imitation/imitation08_custom_user/.venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/zuyaka/ドキュメント/Programming/Django_Imitation/imitation08_custom_user/.venv/lib/python3.10/site-packages/django/views/generic/base.py", line 84, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/Users/zuyaka/ドキュメント/Programming/Django_Imitation/imitation08_custom_user/.venv/lib/python3.10/site-packages/django/views/generic/base.py", line 119, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/Users/zuyaka/ドキュメント/Programming/Django_Imitation/imitation09_follow-function/pj_blog/blog_app/views.py", line 146, in get
+    me = User.objects.get(pk=my_userid)
+  File "/Users/zuyaka/ドキュメント/Programming/Django_Imitation/imitation08_custom_user/.venv/lib/python3.10/site-packages/django/db/models/manager.py", line 85, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "/Users/zuyaka/ドキュメント/Programming/Django_Imitation/imitation08_custom_user/.venv/lib/python3.10/site-packages/django/db/models/query.py", line 496, in get
+    raise self.model.DoesNotExist(
+users.models.User.DoesNotExist: User matching query does not exist.

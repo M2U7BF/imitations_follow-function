@@ -26,7 +26,7 @@ class MyPageView(DetailView):
     def get_context_data(self, **kwargs):
         ctxt = super().get_context_data()
         ctxt['object_list'] = ArticleModel.objects.all()
-        ownerPk = self.kwargs['userid']
+        ownerPk = self.kwargs['pk']
         ctxt['page_owner'] = User.objects.get(pk=ownerPk)
         return ctxt
     
@@ -37,19 +37,11 @@ class MyPageView(DetailView):
         if queryset is None:
             queryset = self.get_queryset()
         
-        # request に 合致するデータを取得
-        # return get_object_or_404(User, pk=self.request.session['user_id'])
-        # pk = self.kwargs.get(self.request)
-        # 原文
-        pk = self.kwargs['userid']
-        # pk = self.kwargs.get(self.pk_url_kwarg)
-        # pk
+        pk = self.kwargs['pk']
         if pk is not None:
-            # この時点で単数にする(?)
             queryset = queryset.filter(posted_by=pk)
         
         try:
-            # Get the single item from the filtered queryset
             objs = queryset.filter()
         except queryset.model.DoesNotExist:
             raise Http404(
@@ -66,15 +58,14 @@ class HomePageView(DetailView):
         ctxt = super().get_context_data()
         # ctxt["following_num"] = None
         ctxt["object_list"] = ArticleModel.objects.all()
-        ownerPk = self.kwargs['userid']
+        ownerPk = self.kwargs['pk']
         ctxt['page_owner'] = User.objects.get(pk=ownerPk)
         ctxt["following_num"] = User.objects.get(pk=ownerPk).following.all().count()
         ctxt["followed_num"] = User.objects.get(pk=ownerPk).followed_by.all().count()
         return ctxt
     
     # オーバーライド
-    # get_object()は何をしているのか? → 
-    # urlに値する1つのデータを取得
+    # urlパラメータを基に当Viewの設定modelから値を取得(この場合Articlemodelの複数値)
     def get_object(self, queryset=None):
         if queryset is None:
             queryset = self.get_queryset()
@@ -83,7 +74,7 @@ class HomePageView(DetailView):
         # return get_object_or_404(User, pk=self.request.session['user_id'])
         # pk = self.kwargs.get(self.request)
         # 原文
-        pk = self.kwargs['userid']
+        pk = self.kwargs['pk']
         # pk = self.kwargs.get(self.pk_url_kwarg)
         # pk
         if pk is not None:
@@ -121,7 +112,7 @@ class ArticleCreateView(CreateView):
     def get_form(self):
         form = super(ArticleCreateView, self).get_form()
         form.fields['posted_by'].label = '投稿者'
-        form.initial['posted_by'] = self.kwargs['userid'] # フィールドの初期値の設定(https://k-mawa.hateblo.jp/entry/2017/10/31/235640)
+        form.initial['posted_by'] = self.kwargs['pk'] # フィールドの初期値の設定(https://k-mawa.hateblo.jp/entry/2017/10/31/235640)
         form.fields['posted_text'].required = True
         return form
 
@@ -140,19 +131,28 @@ class MyLogoutView(LoginRequiredMixin, LogoutView):
     template_name = "logout.html"
 
 class FollowView(View):
+    
     #実行されるときの処理
-    def get(self, request, *args, **kwargs):
+    # def info(msg):
+    #     logger = logging.getLogger('command')
+    #     logger.info(msg)
 
-        my_userid = self.request.GET.get("follow")
+    # info("hello!")
+
+    def get(self, request, *args, **kwargs):
+        logger.debug("request.GET.get() = " + self.request.GET.get('follow', None))
+
+        my_userid = request.GET.get("follow")
         other_userid = self.kwargs['pk']
 
         #テスト部分
         if self.request.GET.get('follow', None):
             logger.debug("request.GET.get() = " + self.request.GET.get('follow', None))
 
-        me = User.objects.get(pk=my_userid)
         other = User.objects.get(pk=other_userid)
-    
+        ## ここで取得できない → my_useridは中身どうなっているか
+        me = User.objects.get(pk=my_userid)
+        
         if other.follow_state == False :
             me.following.add(other)
             other.follow_state = True
@@ -178,32 +178,12 @@ class FollowView(View):
 
     def get_context_data(self, **kwargs):
         ctxt = super().get_context_data()
-        # ctxt["following_num"] = None
         ctxt["object_list"] = ArticleModel.objects.all()
-        ownerPk = self.kwargs['userid']
+        ownerPk = self.kwargs['pk']
         ctxt['page_owner'] = User.objects.get(pk=ownerPk)
         ctxt["following_num"] = User.objects.get(pk=ownerPk).following.all().count()
         ctxt["followed_num"] = User.objects.get(pk=ownerPk).followed_by.all().count()
         return ctxt
-
-    def get_object(self, queryset=None):
-        pk = self.kwargs['userid']
-
-        if queryset is None:
-            queryset = self.get_queryset()
-
-        if pk is not None:
-            queryset = queryset.filter(posted_by=pk)
-        
-        try:
-            # Get the single item from the filtered queryset
-            objs = queryset.filter()
-        except queryset.model.DoesNotExist:
-            raise Http404(
-                _("No %(verbose_name)s found matching the query")
-                % {"verbose_name": queryset.model._meta.verbose_name}
-            )
-        return objs
 
 def UnfollowView(request,pk):
     try:
@@ -212,6 +192,6 @@ def UnfollowView(request,pk):
         raise Http404
     obj.unfollow_num += 1  # ここでいいねの数を増やす
     obj.save()  # 保存をする
-    
+
 
     return JsonResponse({"follow_num,":obj.follow_num}) # いいねの数をJavaScriptに渡す

@@ -1,6 +1,6 @@
 from email.policy import default
 from django.db import models
-from django.utils import timezone
+from django.utils.timezone import now
 # (https://office54.net/python/django/model-app-import)
 from users.models import *
 import uuid
@@ -13,7 +13,7 @@ class ArticleModel(models.Model):
     # 投稿内容
     posted_text = models.CharField(max_length=200,default="テキスト")
     # 投稿日時
-    posted_at = models.DateTimeField(default=timezone.now(), blank=True)
+    posted_at = models.DateTimeField(default=now, blank=True)
     #(https://self-methods.com/django-model-uuid-id/)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
