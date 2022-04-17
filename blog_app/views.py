@@ -1,9 +1,3 @@
-#https://www.sejuku.net/blog/23149
-import logging
-logger = logging.getLogger('development')
-sh = logging.StreamHandler()
-logger.addHandler(sh)
-
 from django.views.generic import DetailView, TemplateView, CreateView, View
 from .models import *
 from django.shortcuts import render
@@ -17,9 +11,10 @@ from django.contrib.auth import get_user_model
 from django.http.response import JsonResponse
 from django.http import HttpResponse
 
+
 User = get_user_model()
 
-class MyPageView(DetailView):
+class MyPageView(LoginRequiredMixin, DetailView):
     template_name = 'my_home.html'
     model = ArticleModel
 
@@ -50,7 +45,7 @@ class MyPageView(DetailView):
             )
         return objs
 
-class HomePageView(DetailView):
+class HomePageView(LoginRequiredMixin, DetailView):
     template_name = '_main.html'
     model = ArticleModel
 
@@ -91,7 +86,7 @@ class HomePageView(DetailView):
             )
         return objs
 
-class index_view(TemplateView):
+class index_view(LoginRequiredMixin, TemplateView):
     template_name="index.html"
 
     def get_context_data(self, **kwargs):
@@ -99,7 +94,7 @@ class index_view(TemplateView):
         ctxt["user_list"] = User.objects.all()
         return ctxt
 
-class ArticleCreateView(CreateView):
+class ArticleCreateView(LoginRequiredMixin, CreateView):
     template_name = 'create_article.html'
     model = ArticleModel
     fields = ('posted_text','posted_by')
@@ -130,24 +125,12 @@ class MyLoginView(LoginView):
 class MyLogoutView(LoginRequiredMixin, LogoutView):
     template_name = "logout.html"
 
-class FollowView(View):
-    
-    #実行されるときの処理
-    # def info(msg):
-    #     logger = logging.getLogger('command')
-    #     logger.info(msg)
-
-    # info("hello!")
+class FollowView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
-        logger.debug("request.GET.get() = " + self.request.GET.get('follow', None))
 
         my_userid = request.GET.get("follow")
         other_userid = self.kwargs['pk']
-
-        #テスト部分
-        if self.request.GET.get('follow', None):
-            logger.debug("request.GET.get() = " + self.request.GET.get('follow', None))
 
         other = User.objects.get(pk=other_userid)
         ## ここで取得できない → my_useridは中身どうなっているか

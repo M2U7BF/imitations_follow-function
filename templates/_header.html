@@ -1,7 +1,16 @@
 <div>
     <!-- ログインユーザーの名前 -->
-    <p>ログインしているアカウント名：{{ user.email }}</p>
+    <p>ログインしているアカウント名：
+        {% if user.is_anonymous %}
+        ログインしていません
+        {% else %}
+        {{ user.email }}
+        {% endif %}
+    </p>
 </div>
+{% if user.is_anonymous %}
+{% else %}
 <a href="{% url 'my_page' user.id %}">自分のページへ</a>
 <a href="{% url 'create_article' user.id %}">新規投稿</a>
+{% endif %}
 <a href="{% url 'create_user' %}">ユーザー新規作成</a>
