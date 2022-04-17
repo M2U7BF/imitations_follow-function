@@ -10,6 +10,7 @@ from . import forms
 from django.contrib.auth import get_user_model 
 from django.http.response import JsonResponse
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 
 
 User = get_user_model()
@@ -130,11 +131,14 @@ class FollowView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
 
         my_userid = request.GET.get("follow")
+        # #(https://teratail.com/questions/270742?link=qa_related_sp)
+        # my_userid = self.kwargs.get('mypk')
         other_userid = self.kwargs['pk']
 
         other = User.objects.get(pk=other_userid)
         ## ここで取得できない → my_useridは中身どうなっているか
-        me = User.objects.get(pk=my_userid)
+        # me = User.objects.get(pk=my_userid)
+        me = get_object_or_404(User, pk=my_userid)
         
         if other.follow_state == False :
             me.following.add(other)

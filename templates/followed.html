@@ -1,28 +1,5 @@
+<span id="followed_count">フォロワー : {{ followed_num }}</span>
 <form action="" method="GET">
     {% csrf_token %}
-    <button name="follow" type="submit" value="{{ user.id }}" onclick="api_followed()" id="followed-a">フォロー</button><span id="followed_count">フォロワー : {{ followed_num }}</span>
+    <a name="follow" value="{{ user.pk }}" href="{% url 'follow' page_owner.pk %}">フォロー</a>
 </form>
-
-<script>
-  function api_followed() {
-      // いいねの数を増やす記事idをJavaScriptに渡す処理
-      let api_url = "{% url 'follow' user.id %}"; //urls.py指定のname参照
-      let btn = document.getElementById("followed_count");
-      // 非同期通信をするための関数をインタンス化する
-      let request = new XMLHttpRequest();
-      request.onreadystatechange = function () {
-          // 非同期通信が完了したら以下のifが処理される。request.readyState === 4部分が非同期処理完了を意味している
-          if (request.readyState === 4 && request.status === 200) {
-              let received_data = JSON.parse(request.responseText);
-              // 画面にいいねの数を反映する
-              btn.innerText = received_data.followed_num;
-              // 画面をリロードするまでボタンを押せなくする処理
-              document.getElementById("followed-a").removeAttribute( "onclick" );
-          }
-      }
-      // サーバーとの通信を実行する処理
-      request.open("GET",api_url);
-      request.send();
-  }
-  
-  </script>

@@ -1,18 +1,40 @@
 {% extends '_base.html' %}
 
 {% block header %}
-<div></div>
+{% if user.is_anonymous %}
+{% else %}
+<header>
+    {% include '_header.html' %}
+</header>
+{% endif %}
 {% endblock %}
 
 {% block main %}
-<h1>ようこそ</h1>
+<h1>ようこそ
+    {% if not user.is_anonymous %}
+    {{ user.username }}さん
+    {% endif %}
+</h1>
 <p>サインアップでアカウントを作成できます。</p>
 <p>ログインすると、アカウントごとのページを閲覧したり、記事の投稿ができます。</p>
 <br>
+{% if user.is_anonymous %}
 <p>アカウントをお持ちの方：<a href="{% url 'login' %}">ログイン</a></p>
 <p>アカウントをお持ちでない方：<a href="{% url 'create_user' %}">サインアップ</a></p>
+{% else %}
+
+{% endif %}
 {% endblock %}
 
 {% block footer %}
-<div></div>
+{% if user.is_anonymous %}
+{% else %}
+<footer>
+    {% block url_index %}
+    <a href="{% url 'index' %}">ホームへ</a>
+    {% endblock %}
+    <a href="{% url 'logout' %}">ログアウト</a>
+    <a href="{% url 'login' %}">ログイン</a>
+</footer>
+{% endif %}
 {% endblock %}

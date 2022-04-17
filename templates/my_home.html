@@ -2,7 +2,7 @@
 
 {% block main %}
     <div>
-        <p>このページの作成者名: {{ page_owner.email }}</p>
+        <p>このページの作成者名: {{ page_owner.username }}</p>
         
     </div>
     {% for i in object_list %}
@@ -13,7 +13,6 @@
         <div class="article_contents posted_at">
             投稿日：{{ i.posted_at }}
         </div>
-
         <br>
         {% endif %}
     {% endfor %}
